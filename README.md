@@ -1,4 +1,7 @@
 # GolangAnalyzerExtension
+The GolangAnalyzerExtension facilitates the analysis of Golang binaries using Ghidra.
+It supports go1.6 through go1.26.
+
 ## Fork hotfix note
 Added support improvements for recovering function metadata from .pclntab in stripped Go binaries (for example binaries built with -ldflags="-s -w").
 
@@ -8,9 +11,6 @@ What was changed:
 - Relaxed function entry consistency checks to accept both absolute functab addresses and text-relative functab offsets.
 - Improved stripped-binary handling by creating/disassembling functions from pclntab entries when functions are not already materialized.
 - This improves function name recovery from pclntab metadata when symbols are stripped.
-
-The GolangAnalyzerExtension facilitates the analysis of Golang binaries using Ghidra.
-It supports go1.6 through go1.26.
 
 ## Features
 This Ghidra plugin provides the following features for analyzing Golang binaries:
