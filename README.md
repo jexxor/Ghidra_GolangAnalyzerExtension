@@ -1,4 +1,14 @@
 # GolangAnalyzerExtension
+## Update (2026-04-09)
+Added support improvements for recovering function metadata from .pclntab in stripped Go binaries (for example binaries built with -ldflags="-s -w").
+
+What was changed:
+- Improved Go 1.18+ function parsing to handle cases where PcHeader textStart is zero by falling back to moduledata.text.
+- Added a second fallback to .text section start when moduledata is unavailable.
+- Relaxed function entry consistency checks to accept both absolute functab addresses and text-relative functab offsets.
+- Improved stripped-binary handling by creating/disassembling functions from pclntab entries when functions are not already materialized.
+- This improves function name recovery from pclntab metadata when symbols are stripped.
+
 The GolangAnalyzerExtension facilitates the analysis of Golang binaries using Ghidra.
 It supports go1.6 through go1.26.
 

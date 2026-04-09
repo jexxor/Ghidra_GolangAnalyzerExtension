@@ -508,12 +508,12 @@ public class GolangFunction {
 	}
 
 	private boolean init_func() {
-		boolean is_go118=false;
-		if(go_bin.ge_go_version(GolangVersion.GO_1_18_LOWEST)) {
-			is_go118=true;
-		}
 		func_addr=info.get_func_addr();
 		if (func_addr==null) {
+			return false;
+		}
+
+		if(!init_func_name()) {
 			return false;
 		}
 
@@ -526,15 +526,19 @@ public class GolangFunction {
 			func=go_bin.get_function(func_addr).orElse(null);
 		}
 		if(func==null) {
+			// Stripped binaries may not have pre-existing functions; ensure code exists before creating one.
+			disassemble();
+			go_bin.create_function(func_name, func_addr);
+			func=go_bin.get_function(func_addr).orElse(null);
+		}
+		if(func==null) {
 			Logger.append_message(String.format("Failed to get function: %s", func_addr));
 			return false;
 		}
 
-		if(!init_func_name()) {
-			return false;
-		}
 		if(!init_file_line_map()) {
-			return false;
+			file_line_comment_map=new HashMap<>();
+			Logger.append_message(String.format("Failed to init file line map: addr=%s, name=%s", func_addr, func_name));
 		}
 
 		if(!init_args_size()) {
@@ -581,10 +585,12 @@ public class GolangFunction {
 		init_regs_ret();
 
 		if(!init_params_var()) {
-			return false;
+			params=new ArrayList<>();
+			Logger.append_message(String.format("Failed to init params: addr=%s, name=%s", func_addr, func_name));
 		}
 		if(!init_ret_var()) {
-			return false;
+			ret_param=null;
+			Logger.append_message(String.format("Failed to init return: addr=%s, name=%s", func_addr, func_name));
 		}
 
 		return true;
