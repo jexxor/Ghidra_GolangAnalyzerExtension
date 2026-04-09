@@ -1,5 +1,5 @@
 # GolangAnalyzerExtension
-## Update (2026-04-09)
+## Fork hotfix note
 Added support improvements for recovering function metadata from .pclntab in stripped Go binaries (for example binaries built with -ldflags="-s -w").
 
 What was changed:
