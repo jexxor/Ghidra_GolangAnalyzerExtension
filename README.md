@@ -12,6 +12,11 @@ What was changed:
 - Improved stripped-binary handling by creating/disassembling functions from pclntab entries when functions are not already materialized.
 - This improves function name recovery from pclntab metadata when symbols are stripped.
 
+Additional fork hotfix for source links:
+- Standard library source links now use the identified Go version when formatting `github.com/golang/go` URLs.
+- Blob refs like `go1.20beta1` are normalized to `go1.20` for GitHub, because some beta tags are not available and return 404.
+- This prevents broken links such as `.../blob/go1.20beta1/...` while keeping valid tags (for example `go1.20rc1`) unchanged.
+
 ## Features
 This Ghidra plugin provides the following features for analyzing Golang binaries:
 
