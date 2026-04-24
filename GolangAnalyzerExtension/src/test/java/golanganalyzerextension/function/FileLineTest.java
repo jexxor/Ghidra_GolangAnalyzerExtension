@@ -103,6 +103,24 @@ public class FileLineTest extends AbstractGhidraHeadlessIntegrationTest {
 		assertEquals(file_line.toString(), String.format("{@url %s}", url));
 	}
 
+	@ParameterizedTest
+	@MethodSource("test_format_with_stdlib_ref_params")
+	public void test_format_with_stdlib_ref(String stored_ver, String identified_ver, String file_name, int line_num, String url) throws Exception {
+		initialize(new HashMap<String, String>());
+		GolangBinary go_bin=new GolangBinary(program, "", TaskMonitor.DUMMY);
+
+		FileLine file_line=new FileLine(go_bin.get_address(0x401000), 0, 0, file_name, line_num, stored_ver);
+
+		assertEquals(file_line.format_with_stdlib_ref(identified_ver), String.format("{@url %s}", url));
+	}
+
+	static Stream<Arguments> test_format_with_stdlib_ref_params() throws Throwable {
+		return Stream.of(
+				Arguments.of("go1.18", "go1.22.1", "internal/cpu/cpu.go", 1, "https://github.com/golang/go/blob/go1.22.1/src/internal/cpu/cpu.go#L1"),
+				Arguments.of("go1.20", "go1.20beta", "runtime/runtime.go", 3, "https://github.com/golang/go/blob/go1.20/src/runtime/runtime.go#L3")
+			);
+	}
+
 	static Stream<Arguments> test_to_string_params() throws Throwable {
 		return Stream.of(
 				Arguments.of("internal/cpu/cpu.go", 1, "https://github.com/golang/go/blob/go1.20/src/internal/cpu/cpu.go#L1"),
@@ -113,6 +131,25 @@ public class FileLineTest extends AbstractGhidraHeadlessIntegrationTest {
 				Arguments.of("golang.org/x/tools@v0.9.3/go/ssa/create.go", 1, "https://github.com/golang/tools/blob/v0.9.3/go/ssa/create.go#L1"),
 				Arguments.of("/temp/pkg/mod/github.com/tmp/pmt/v5@v5.3.0/batch.go", 1, "https://github.com/tmp/pmt/blob/v5.3.0/batch.go#L1"),
 				Arguments.of("/temp/pkg/mod/golang.org/x/tools@v0.9.3/go/ssa/create.go", 1, "https://github.com/golang/tools/blob/v0.9.3/go/ssa/create.go#L1")
+			);
+	}
+
+	@ParameterizedTest
+	@MethodSource("test_resolve_stdlib_github_blob_ref_params")
+	public void test_resolve_stdlib_github_blob_ref(String label, String expected_ref) {
+		assertEquals(FileLine.resolve_stdlib_github_blob_ref(label), expected_ref);
+	}
+
+	static Stream<Arguments> test_resolve_stdlib_github_blob_ref_params() throws Throwable {
+		return Stream.of(
+				Arguments.of("go1.20beta1", "go1.20"),
+				Arguments.of("go1.20beta2", "go1.20"),
+				Arguments.of("go1.20rc1", "go1.20rc1"),
+				Arguments.of("go1.20beta", "go1.20"),
+				Arguments.of("go1.20.3", "go1.20.3"),
+				Arguments.of("  go1.21.3  ", "go1.21.3"),
+				Arguments.of("", "master"),
+				Arguments.of("not-a-go-version", "master")
 			);
 	}
 

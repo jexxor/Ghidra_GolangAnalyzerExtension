@@ -257,7 +257,7 @@ public class FunctionModifier {
 
 		for(Integer key: comment_map.keySet()) {
 			try {
-				go_bin.set_comment(go_bin.get_address(addr, key), ghidra.program.model.listing.CodeUnit.PRE_COMMENT, comment_map.get(key).toString());
+				go_bin.set_comment(go_bin.get_address(addr, key), ghidra.program.model.listing.CodeUnit.PRE_COMMENT, comment_map.get(key).format_with_stdlib_ref(go_bin.get_go_version()));
 			} catch (BinaryAccessException e) {
 				Logger.append_message(String.format("Failed to add file line comment: addr=%s, name=%s, message=%s", gofunc.get_func_addr(), gofunc.get_func_name(), e.getMessage()));
 			}

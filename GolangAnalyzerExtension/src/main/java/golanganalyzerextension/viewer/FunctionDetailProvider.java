@@ -19,15 +19,18 @@ import ghidra.program.model.listing.Parameter;
 import ghidra.util.layout.VerticalLayout;
 import golanganalyzerextension.function.FileLine;
 import golanganalyzerextension.function.GolangFunctionRecord;
+import golanganalyzerextension.gobinary.GolangBinary;
 import golanganalyzerextension.service.GolangAnalyzerExtensionPlugin;
 
 class FunctionDetailProvider extends ComponentProviderAdapter {
 
 	private JPanel main_panel;
+	private final GolangAnalyzerExtensionPlugin gae_plugin;
 
 	FunctionDetailProvider(GolangAnalyzerExtensionPlugin tool, GolangFunctionRecord gofunc) {
 		super(tool.getTool(), "GolangFunctionDetail", tool.getName());
 
+		this.gae_plugin=tool;
 		main_panel=create_main_panel(gofunc);
 
 		setTitle(gofunc.get_func_name());
@@ -86,10 +89,14 @@ class FunctionDetailProvider extends ComponentProviderAdapter {
 		Map<Integer, FileLine> file_line_map=gofunc.get_file_line_comment_map();
 		List<Integer> key_list=new ArrayList<Integer>(file_line_map.keySet());
 		key_list.sort(null);
+		GolangBinary go_bin=gae_plugin.get_binary();
+		String identified_go_version=go_bin!=null ? go_bin.get_go_version() : null;
 		String[] columns={"Offset", "File name"};
 		Object[][] data=new Object[file_line_map.size()][2];
 		for(int i=0; i<key_list.size(); i++) {
-			Object[] row={key_list.get(i), file_line_map.get(key_list.get(i)).toString()};
+			FileLine fl=file_line_map.get(key_list.get(i));
+			String ver=identified_go_version!=null ? identified_go_version : fl.get_go_version_str();
+			Object[] row={key_list.get(i), fl.format_with_stdlib_ref(ver)};
 			data[i]=row;
 		}
 		JTable table=new JTable(data, columns);
